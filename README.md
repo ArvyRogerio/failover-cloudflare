@@ -11,7 +11,6 @@ O script assume que:
 - necessita PHP 5 ou superior (não testado em versões inferiores), mas PHP 7/8 recomendado
 - irá rodar em um terceiro servidor, nem no próprio master e nem no próprio slave
 - este terceiro servidor tem um SMTP local (ex: Postfix) e acesso a internet
-- php.ini configurado com "short_open_tag = On" (ou altere a primeira linha para <?php)
 
 A configuração somente precisa ser feita no começo do script, alterando "$config":
 - master: IP do servidor principal (ex: 1.1.1.1)
