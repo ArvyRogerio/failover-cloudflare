@@ -39,7 +39,6 @@ Códigos de retorno (útil para usar com scripts bash, exemplo: [ $? -eq 0 ] && 
 
 TODO ou DIY:
 - para registros CNAME ou outros, ou sem proxy (ajustar TTL>60), editar a linha com CURLOPT_POSTFIELDS em formato json
-- checagem é feita via HTTP. Para usar HTTPS, altere CURLOPT_URL em HTTPGet() - talvez necessário desativar checagem de SSL (curl)
 
 Outros detalhes:
 - utiliza um arquivo local chamado "atual.txt" para guardar o status atual (IP do servidor atualmente setado)
