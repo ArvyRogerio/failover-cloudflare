@@ -1,9 +1,9 @@
-<?
+<?php
 /////////////////////////
 //Failover via CloudFlare
-//Versão 1.0 - 18/10/2021
+//VersÃ£o 1.2 - 09/01/2025
 /////////////////////////
-//Por Rogério Vitiello - www.arvy.com.br
+//Por RogÃ©rio Vitiello - www.arvy.com.br
 //Criado para a InWeb Internet - www.inweb.com.br
 //Uso livre, altere para sua necessidade
 //https://github.com/ArvyRogerio/failover-cloudflare
@@ -31,7 +31,7 @@ if (!file_exists($_SERVER['PWD'].'/atual.txt')) file_put_contents($_SERVER['PWD'
 
 $Atual=file_get_contents($_SERVER['PWD'].'/atual.txt');
 
-//Proteção, provavelmente por troca de IPs
+//ProteÃ§Ã£o, provavelmente por troca de IPs
 if ($Atual!=$configs['master'] and $Atual!=$configs['slave']) {
    file_put_contents($_SERVER['PWD'].'/atual.txt',$configs['master']);
    $Atual=$configs['master'];
@@ -40,23 +40,23 @@ if ($Atual!=$configs['master'] and $Atual!=$configs['slave']) {
 //Checa Master
 $Retorno=HTTPGet($configs['master']);
 
-//Se chegou aqui, tudo ok, não faz nada: está no master e o ip já está no master
+//Se chegou aqui, tudo ok, nÃ£o faz nada: estÃ¡ no master e o ip jÃ¡ estÃ¡ no master
 if (strpos($Retorno,$configs['string'])>0 and $Atual==$configs['master']) exit(0);
 
-//Se deu erro e está no master, aponta para o slave
+//Se deu erro e estÃ¡ no master, aponta para o slave
 if (strpos($Retorno,$configs['string'])===false and $Atual==$configs['master']) {
 
    //Mas antes checa o slave, porque pode ser problema na internet do checador, e tenta avisar se possivel (queue email, ao voltar)
    $Retorno=HTTPGet($configs['slave']);
 
-   //Muito provavelmente este servidor está sem internet (gw)...
-   //Não faz nada para não dar confusão e se oscilou avisará o admin para checar manualmente
+   //Muito provavelmente este servidor estÃ¡ sem internet (gw)...
+   //NÃ£o faz nada para nÃ£o dar confusÃ£o e se oscilou avisarÃ¡ o admin para checar manualmente
    if (strpos($Retorno,$configs['string'])===false) {
-      Info('Master e slave estão fora do ar? Ou servidor de checagem sem internet em '.date('d/m/Y H:i:s').'!'); //Tenta avisar
+      Info('Master e slave estÃ£o fora do ar? Ou servidor de checagem sem internet em '.date('d/m/Y H:i:s').'!'); //Tenta avisar
       exit(3);
    }
 
-   //Slave respondeu, então não é problema no checador: altera
+   //Slave respondeu, entÃ£o nÃ£o Ã© problema no checador: altera
    foreach (explode(',',$configs['entradas']) as $e) Alterar($e,$configs['slave']);
 
    file_put_contents($_SERVER['PWD'].'/atual.txt',$configs['slave']);
@@ -64,23 +64,23 @@ if (strpos($Retorno,$configs['string'])===false and $Atual==$configs['master']) 
 
 }
 
-//Se master respondeu (voltou) e está no slave, volta para o master
+//Se master respondeu (voltou) e estÃ¡ no slave, volta para o master
 if (strpos($Retorno,$configs['string'])>0 and $Atual==$configs['slave']) {
    foreach (explode(',',$configs['entradas']) as $e) Alterar($e,$configs['master']);
    file_put_contents($_SERVER['PWD'].'/atual.txt',$configs['master']);
    exit(2);
 }
 
-//Ainda master fora do ar e já está no slave, por precaução faz um teste no slave
+//Ainda master fora do ar e jÃ¡ estÃ¡ no slave, por precauÃ§Ã£o faz um teste no slave
 if (strpos($Retorno,$configs['string'])===false and $Atual==$configs['slave']) {
 
    //Checa Slave
    $Retorno=HTTPGet($configs['slave']);
 
    //Checa o slave, porque pode ser problema na internet do checador, e tenta avisar se possivel (queue email, ao voltar)
-   //Se não for a internet do checador, é um grande problema, ambos sairam do ar! :(
+   //Se nÃ£o for a internet do checador, Ã© um grande problema, ambos sairam do ar! :(
    if (strpos($Retorno,$configs['string'])===false) {
-      Info('Master e slave estão fora do ar? Ou servidor de checagem sem internet em '.date('d/m/Y H:i:s').'!'); //Tenta avisar
+      Info('Master e slave estÃ£o fora do ar? Ou servidor de checagem sem internet em '.date('d/m/Y H:i:s').'!'); //Tenta avisar
       exit(3);
    }
 
@@ -90,7 +90,7 @@ if (strpos($Retorno,$configs['string'])===false and $Atual==$configs['slave']) {
 }
 
 /////////////
-// Funções //
+// FunÃ§Ãµes //
 /////////////
 
 function HTTPGet($IP) {
@@ -105,7 +105,9 @@ function HTTPGet($IP) {
         CURLOPT_CONNECTTIMEOUT => $configs['http-timeout'],
         CURLOPT_TIMEOUT => $configs['http-timeout'],
         CURLOPT_HTTPHEADER => array("Host: ".$configs['dominio'],"Content-Type: text/html"),
-        CURLOPT_URL => 'http://'.$IP
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_URL => 'https://'.$IP
    ));
 
    $resp=curl_exec($curl);
